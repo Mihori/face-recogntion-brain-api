@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 
 const db = require('knex')({
   client: 'pg',
@@ -13,6 +14,8 @@ const db = require('knex')({
 db.select('*').from('users').then(console.log);
 
 const app = express();
+
+app.use(cors());
 
 app.get('/', (req, res) => {
   res.send('working');
@@ -32,7 +35,7 @@ app.post('/register', (req, res) => {
       joined: new Date(),
     })
     .then(user => res.json(user))
-    .catch(error => res.status(400).json(error))
+    .catch(error => res.status(400).json('Unable to register'))
 });
 
 app.listen(3000, () => {
