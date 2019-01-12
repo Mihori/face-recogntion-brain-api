@@ -52,6 +52,15 @@ app.get('/profile/:id', (req, res) => {
     })
 });
 
+app.put('/image', (req, res) => {
+  const { id } = req.body;
+  db('users').where('id', '=', id)
+    .increment('entires', 1)
+    .returning('entires')
+    .then(entries => res.json(entires[0]))
+    .catch(error => res.status(400).json('Unable to get entries'))
+});
+
 app.listen(3000, () => {
   console.log('Server is running');
 });
