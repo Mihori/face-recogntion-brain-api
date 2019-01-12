@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 
 const db = require('knex')({
   client: 'pg',
@@ -16,6 +17,7 @@ db.select('*').from('users').then(console.log);
 const app = express();
 
 app.use(cors());
+app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
   res.send('working');
@@ -34,8 +36,20 @@ app.post('/register', (req, res) => {
       name,
       joined: new Date(),
     })
-    .then(user => res.json(user))
+    .then(user => res.json(user[0]))
     .catch(error => res.status(400).json('Unable to register'))
+});
+
+app.get('/profile/:id', (req, res) => {
+  const { id } = req.params;
+  db.select('*').from('users').where({ id })
+    .then(user => {
+      if (user.length) {
+      res.json(user[0])
+      } else {
+        res.status(400).json('Not found')
+      }
+    })
 });
 
 app.listen(3000, () => {
