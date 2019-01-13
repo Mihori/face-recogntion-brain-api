@@ -30,15 +30,28 @@ app.post('/signin', (req, res) => {
 
 app.post('/register', (req, res) => {
   const { email, name, passwords } = req.body;
-  db('users')
-    .returning('*')
-    .insert({
-      email,
-      name,
-      joined: new Date(),
+  const hash = bcrypt.hashSync(password);
+  db.transaction(trx => {
+    trx.insert({
+      hash,
+      email
     })
-    .then(user => res.json(user[0]))
-    .catch(error => res.status(400).json('Unable to register'))
+    .into('login')
+    .returning('email')
+    .then(loginEmail => {
+      trx('users')
+        .returning('*')
+        .insert({
+          email: loginEmail[0],
+          name,
+          joined: new Date(),
+        })
+        .then(user => res.json(user[0]))
+      })
+    .then(trx.commit)
+    .catch(trx.rollback)
+  })
+  .catch(error => res.status(400).json('Unable to register'))
 });
 
 app.get('/profile/:id', (req, res) => {
