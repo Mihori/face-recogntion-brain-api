@@ -13,8 +13,6 @@ const db = require('knex')({
   }
 });
 
-db.select('*').from('users').then(console.log);
-
 const app = express();
 
 app.use(cors());
@@ -44,7 +42,7 @@ app.post('/signin', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-  const { email, name, passwords } = req.body;
+  const { email, name, password } = req.body;
   const hash = bcrypt.hashSync(password);
   db.transaction(trx => {
     trx.insert({
@@ -54,7 +52,7 @@ app.post('/register', (req, res) => {
     .into('login')
     .returning('email')
     .then(loginEmail => {
-      trx('users')
+      return trx('users')
         .returning('*')
         .insert({
           email: loginEmail[0],
@@ -90,6 +88,6 @@ app.put('/image', (req, res) => {
     .catch(error => res.status(400).json('Unable to get entries'))
 });
 
-app.listen(3000, () => {
+app.listen(5000, () => {
   console.log('Server is running');
 });
