@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt-nodejs');
 const handleSignin = require('./controllers/signin');
 const handleRegister = require('./controllers/register');
 const handleProfile = require('./controllers/profile');
-const handleImage = require('./controllers/image');
+const image = require('./controllers/image');
 
 const db = require('knex')({
   client: 'pg',
@@ -33,7 +33,8 @@ app.post('/register', (req, res) => handleRegister(req, res, db, bcrypt));
 
 app.get('/profile/:id', (req, res) => handleProfile(req, res, db));
 
-app.put('/image', (req, res) => handleImage(req, res, db));
+app.put('/image', (req, res) => image.handleImage(req, res, db));
+app.post('/imageurl', (req, res) => image.handleApiCall(req, res))
 
 app.listen(5000, () => {
   console.log('Server is running');
