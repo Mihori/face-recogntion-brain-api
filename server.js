@@ -23,6 +23,10 @@ app.get('/', (req, res) => {
 });
 
 app.post('/signin', (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json('Incorrect form submission');
+  }
   db.select('email', 'hash').from('login')
     .where('email', '=', req.body.email)
     .then(data => {
@@ -43,6 +47,9 @@ app.post('/signin', (req, res) => {
 
 app.post('/register', (req, res) => {
   const { email, name, password } = req.body;
+  if (!email || !name || !password) {
+    return res.status(400).json('Incorrect form submission');
+  }
   const hash = bcrypt.hashSync(password);
   db.transaction(trx => {
     trx.insert({
@@ -82,9 +89,9 @@ app.get('/profile/:id', (req, res) => {
 app.put('/image', (req, res) => {
   const { id } = req.body;
   db('users').where('id', '=', id)
-    .increment('entires', 1)
-    .returning('entires')
-    .then(entries => res.json(entires[0]))
+    .increment('entries', 1)
+    .returning('entries')
+    .then(entries => res.json(entries[0]))
     .catch(error => res.status(400).json('Unable to get entries'))
 });
 
